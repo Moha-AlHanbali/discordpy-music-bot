@@ -2,7 +2,7 @@
 
 ## Functionality
 
-- [ ] Get it running
+- [x] Get it running
 - [ ] Add the ability to play via urls
 - [ ] Add the ability to search for tracks
 - [ ] Add the ability to pause/resume
