@@ -2,7 +2,6 @@
 
 import youtube_dl
 
-
 ytdl_opts = {
     'format': 'bestaudio/best',
     'quiet': True,
@@ -17,13 +16,14 @@ ytdl_opts = {
 
 ytdl = youtube_dl.YoutubeDL(ytdl_opts)
 
-async def enqueue(queue, url):
+async def enqueue(queue, url, message):
     """
     enqueue Adds a track to the bot track queue.
 
         Arguments:
             queue: MusicBot track queue
             url: str
+            message: Message instance
 
         Return:
             Modified queue
@@ -36,4 +36,7 @@ async def enqueue(queue, url):
     }
 
     queue.append(song)
+
+    await message.channel.send(f'Added {queue[0]["title"]} to queue!')
+
     return queue

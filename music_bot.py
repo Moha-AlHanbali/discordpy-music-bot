@@ -2,14 +2,13 @@
 
 import discord
 import os
-from discord import client
-from discord.channel import VoiceChannel
 from dotenv import load_dotenv
 
 from commands.enqueue import enqueue
 from commands.summon import summon
 from commands.leave import leave
 from commands.clear import clear
+from commands.play import play
 
 load_dotenv()
 prefix = '!'
@@ -55,9 +54,13 @@ class MusicBot(discord.Client):
     def __init__(self):
         super().__init__()
         self.queue = list()
+        self.voice_channel = None
+
 
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
+        if self.voice_clients:
+            self.voice_channel = self.voice_clients[0]
 
 
     async def on_message(self, message):
@@ -73,6 +76,7 @@ class MusicBot(discord.Client):
 
         if not self.voice_clients and not command == 'leave':
             await summon(message.author)
+            self.voice_channel = self.voice_clients[0]
 
         await self.command_handler(message, command, content)
 
@@ -80,9 +84,12 @@ class MusicBot(discord.Client):
 
     async def command_handler(self, message, command, content=''):
 
-        if command == 'play':
-            self.queue = await enqueue(self.queue, content)
+        if command == 'add':
+            self.queue = await enqueue(self.queue, content, message)
 
+        if command == 'play':
+            self.queue = await enqueue(self.queue, content, message)
+            self.queue = await play(self.queue, self.voice_channel, message)
 
         if command == 'join':
             if not self.voice_clients:
@@ -92,6 +99,7 @@ class MusicBot(discord.Client):
         if command == 'leave':
             if self.voice_clients:
                 self.queue = clear(self.queue)
+                self.voice_channel = None
                 return await leave(self)
             await message.channel.send('Bot is not in a vocie channel!')
 
