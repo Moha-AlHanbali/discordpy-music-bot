@@ -2,7 +2,15 @@
 
 async def resume(voice_channel, queue, message):
     """
-    
+    resume resumes playing paused tracks
+
+        Arguments:
+            voice_channel: VoiceChannel Instance
+            queue: MusicBot track queue
+            message: Message instance
+
+        Return:
+            Sends a status message 
     """
     if not queue:
         return await message.channel.send('Queue is empty!')

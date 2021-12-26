@@ -15,12 +15,12 @@ async def play_next(bot, queue, voice_channel, message):
             message: Message instance
 
         Return:
-            Modified queue
+            Sends a status message
     """
 
     queue.pop(0)
-
     if queue:
+
         voice_channel.play(discord.FFmpegPCMAudio(queue[0]['url']) , after = lambda e: asyncio.run_coroutine_threadsafe(play_next(bot, queue, voice_channel, message), bot.loop))
         return  await message.channel.send(f'Started Playing {queue[0]["title"]}!')
 

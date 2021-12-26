@@ -12,6 +12,8 @@ from commands.play import play
 from commands.queue import queue
 from commands.pause import pause
 from commands.resume import resume
+from commands.stop import stop
+from commands.skip import skip
 
 load_dotenv()
 prefix = '!'
@@ -103,7 +105,7 @@ class MusicBot(discord.Client):
 
         if command == 'leave':
             if self.voice_clients:
-                self.queue = clear(self.queue)
+                self.queue = clear(self.queue, message)
                 self.voice_channel = None
                 return await leave(self)
             await message.channel.send('Bot is not in a vocie channel!')
@@ -119,6 +121,12 @@ class MusicBot(discord.Client):
 
         if command == 'resume':
             await resume(self.voice_channel, self.queue, message)
+
+        if command == 'stop':
+            self.queue = await stop(self.voice_channel, self.queue, message)
+
+        if command == 'skip':
+            await skip(self, self.voice_channel, self.queue, message)
 
 music_bot = MusicBot()
 music_bot.run(os.getenv('API_KEY'))

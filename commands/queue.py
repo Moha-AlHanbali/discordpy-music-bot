@@ -7,7 +7,15 @@ async def queue(queue, message):
     if len(queue) == 0:
         return await message.channel.send('Queue is empty!')
 
-    await message.channel.send('Songs in queue:')
+    
     for track in range(len(queue)):
-         await message.channel.send(f'{track + 1} - {queue[track]["title"]}')
+        if  track == 0:
+            await message.channel.send(f' Currently playing: {queue[track]["title"]}')
+            if len(queue) > 1:
+                await message.channel.send('Songs in queue:')
+            else:
+                await message.channel.send('Nothing else enqueued!')                
+            continue
+
+        await message.channel.send(f'{track} - {queue[track]["title"]}')
     return
