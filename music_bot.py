@@ -10,6 +10,8 @@ from commands.leave import leave
 from commands.clear import clear
 from commands.play import play
 from commands.queue import queue
+from commands.pause import pause
+from commands.resume import resume
 
 load_dotenv()
 prefix = '!'
@@ -111,6 +113,12 @@ class MusicBot(discord.Client):
 
         if command == 'queue':
             await queue(self.queue, message)
+
+        if command == 'pause':
+            await pause(self.voice_channel, self.queue, message)
+
+        if command == 'resume':
+            await resume(self.voice_channel, self.queue, message)
 
 music_bot = MusicBot()
 music_bot.run(os.getenv('API_KEY'))
