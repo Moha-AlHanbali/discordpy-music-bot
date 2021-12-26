@@ -1,13 +1,16 @@
 """This module allows bot to play queued tracks"""
 
 import discord
+import asyncio
 
+from .play_next import play_next
 
-async def play(queue, voice_channel, message):
+async def play(bot, queue, voice_channel, message):
     """
-    play allows bot to play a track in voice channel.
+    play allows bot to start playing queue tracks in voice channel.
 
         Arguments:
+            bot: MusicBot instance
             queue: MusicBot track queue
             voice_channel: VoiceChannel Instance
             message: Message instance
@@ -15,6 +18,7 @@ async def play(queue, voice_channel, message):
         Return:
             Modified queue
     """
-    voice_channel.play(discord.FFmpegPCMAudio(queue[0]['url']))
+    voice_channel.play(discord.FFmpegPCMAudio(queue[0]['url']), after = lambda e: asyncio.run_coroutine_threadsafe(play_next(bot, queue, voice_channel, message), bot.loop))
     await message.channel.send(f'Started Playing {queue[0]["title"]}!')
-    return queue.pop(0)
+
+    return queue

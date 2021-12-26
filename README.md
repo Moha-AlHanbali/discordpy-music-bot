@@ -4,7 +4,7 @@
 
 - [x] Get it running
 - [x] Add the ability to play via urls
-- [ ] Add the ability to search for tracks
+- [x] Add the ability to search for tracks
 - [ ] Add the ability to pause/resume
 - [ ] Add the ability to Replay
 - [ ] Add the ability to Repeat

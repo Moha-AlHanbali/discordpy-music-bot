@@ -9,6 +9,7 @@ from commands.summon import summon
 from commands.leave import leave
 from commands.clear import clear
 from commands.play import play
+from commands.queue import queue
 
 load_dotenv()
 prefix = '!'
@@ -53,7 +54,7 @@ class MusicBot(discord.Client):
 
     def __init__(self):
         super().__init__()
-        self.queue = list()
+        self.queue = []
         self.voice_channel = None
 
 
@@ -70,6 +71,7 @@ class MusicBot(discord.Client):
 
         if not message.author.voice:
             return await message.channel.send('You need to be in a voice channel to use bot commands!')
+
 
         command = message.content.lower().split(" ")[0][1:]
         content = " ".join(message.content.split(" ")[1:])      # NOTE: HASHED URLS MAY CONTAIN UPPER CASE LETTERS
@@ -89,7 +91,8 @@ class MusicBot(discord.Client):
 
         if command == 'play':
             self.queue = await enqueue(self.queue, content, message)
-            self.queue = await play(self.queue, self.voice_channel, message)
+            if not self.voice_channel.is_playing():
+                self.queue = await play(self, self.queue, self.voice_channel, message)
 
         if command == 'join':
             if not self.voice_clients:
@@ -104,8 +107,10 @@ class MusicBot(discord.Client):
             await message.channel.send('Bot is not in a vocie channel!')
 
         if command == 'clear':
-            self.queue = clear(self.queue)
+            self.queue = await clear(self.queue, message)
 
+        if command == 'queue':
+            await queue(self.queue, message)
 
 music_bot = MusicBot()
 music_bot.run(os.getenv('API_KEY'))
