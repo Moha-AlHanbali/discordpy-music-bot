@@ -1,6 +1,6 @@
 """This module clears the track queue."""
 
-def clear(queue):
+async def clear(queue, message):
     """
     clear empties MusicBot track queue.
 
@@ -11,6 +11,10 @@ def clear(queue):
             Modified queue
             
     """
-    queue = []
+    if not queue:
+        await message.channel.send('Queue is already empty!')
+    else:
+        queue = []
+        await message.channel.send('Cleared queue!')
     return queue
     

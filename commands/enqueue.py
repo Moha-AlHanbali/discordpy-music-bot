@@ -4,6 +4,7 @@ import youtube_dl
 
 ytdl_opts = {
     'format': 'bestaudio/best',
+    'default_search': 'auto',
     'quiet': True,
     'skip_download': True,
     'postprocessors': [{
@@ -18,7 +19,7 @@ ytdl = youtube_dl.YoutubeDL(ytdl_opts)
 
 async def enqueue(queue, url, message):
     """
-    enqueue Adds a track to the bot track queue.
+    enqueue detects if the message containes keywords or urls and adds the requested track to the bot track queue.
 
         Arguments:
             queue: MusicBot track queue
@@ -29,14 +30,23 @@ async def enqueue(queue, url, message):
             Modified queue
 
     """
-    song_info =  ytdl.extract_info(url)
-    song = {
-        'title': song_info['title'],
-        'url': song_info['url']
-    }
+
+
+    song_info =  ytdl.extract_info(url, download = False)
+    if 'formats' in song_info:
+        song = {
+            'title': song_info['title'],
+            'url': song_info['url']
+        }
+
+    if 'entries' in song_info:
+        song = {
+            'title': song_info['entries'][0]['title'],
+            'url': song_info['entries'][0]["formats"][0]['url']
+        }
 
     queue.append(song)
-
-    await message.channel.send(f'Added {queue[0]["title"]} to queue!')
+    print(queue)
+    await message.channel.send(f'Added {song["title"]} to queue!')
 
     return queue
