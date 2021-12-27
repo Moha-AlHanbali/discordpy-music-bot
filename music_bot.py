@@ -14,6 +14,8 @@ from commands.pause import pause
 from commands.resume import resume
 from commands.stop import stop
 from commands.skip import skip
+from commands.replay import replay
+from commands.repeat import repeat
 
 load_dotenv()
 prefix = '!'
@@ -26,11 +28,22 @@ class MusicBot(discord.Client):
 
             on_ready:
 
-                Prints the bot name once its' online.
+                Prints the bot name once its' online and sets its' status.
                 
                     Arguments: None
 
                     Return: None
+
+
+            on_disconnect
+
+                    Cleans up if bot gets disconnected
+                    
+                    Arguments:
+                        message: Message instance
+
+                    Return:
+                        Sends a status message
 
 
             on_message:
@@ -60,12 +73,21 @@ class MusicBot(discord.Client):
         super().__init__()
         self.queue = []
         self.voice_channel = None
-
+        self.repeat = False
 
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
+        await self.change_presence(status=discord.Status.idle, activity=discord.Game('!help'))
         if self.voice_clients:
             self.voice_channel = self.voice_clients[0]
+        
+
+    async def on_disconnect(self, message):
+            self.queue = []
+            self.repeat = False
+            await leave(self)
+            self.voice_channel = None
+            return await message.channel.send('Bot got disconnected from Discord!')
 
 
     async def on_message(self, message):
@@ -80,7 +102,7 @@ class MusicBot(discord.Client):
         command = message.content.lower().split(" ")[0][1:]
         content = " ".join(message.content.split(" ")[1:])      # NOTE: HASHED URLS MAY CONTAIN UPPER CASE LETTERS
 
-        if not self.voice_clients and not command == 'leave':
+        if not self.voice_clients and not command == 'leave' and not command == 'join':
             await summon(message.author)
             self.voice_channel = self.voice_clients[0]
 
@@ -94,6 +116,7 @@ class MusicBot(discord.Client):
             self.queue = await enqueue(self.queue, content, message)
 
         if command == 'play':
+            await self.change_presence(status=discord.Status.idle, activity=discord.Game('playing music'))
             self.queue = await enqueue(self.queue, content, message)
             if not self.voice_channel.is_playing():
                 self.queue = await play(self, self.queue, self.voice_channel, message)
@@ -101,7 +124,7 @@ class MusicBot(discord.Client):
         if command == 'join':
             if not self.voice_clients:
                 return await summon(message.author)
-            await message.channel.send('Bot is already joined a vocie channel!')
+            await message.channel.send('Bot is already joined a vocie channel!', delete_after=5)
 
         if command == 'leave':
             if self.voice_clients:
@@ -114,7 +137,7 @@ class MusicBot(discord.Client):
             self.queue = await clear(self.queue, message)
 
         if command == 'queue':
-            await queue(self.queue, message)
+            await queue(self.queue, message, self.repeat)
 
         if command == 'pause':
             await pause(self.voice_channel, self.queue, message)
@@ -127,6 +150,13 @@ class MusicBot(discord.Client):
 
         if command == 'skip':
             await skip(self, self.voice_channel, self.queue, message)
+
+        if command == 'replay':
+            await replay(self, self.voice_channel, self.queue, message)
+
+        if command == 'repeat':
+            self.repeat = await repeat(self.queue, message, self.repeat)
+
 
 music_bot = MusicBot()
 music_bot.run(os.getenv('API_KEY'))
