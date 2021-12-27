@@ -15,6 +15,7 @@ from commands.resume import resume
 from commands.stop import stop
 from commands.skip import skip
 from commands.replay import replay
+from commands.repeat import repeat
 
 load_dotenv()
 prefix = '!'
@@ -38,9 +39,11 @@ class MusicBot(discord.Client):
 
                     Cleans up if bot gets disconnected
                     
-                    Arguments: None
+                    Arguments:
+                        message: Message instance
 
-                    Return: None                   
+                    Return:
+                        Sends a status message
 
 
             on_message:
@@ -70,7 +73,7 @@ class MusicBot(discord.Client):
         super().__init__()
         self.queue = []
         self.voice_channel = None
-
+        self.repeat = False
 
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
@@ -79,10 +82,12 @@ class MusicBot(discord.Client):
             self.voice_channel = self.voice_clients[0]
         
 
-    async def on_disconnect(self):
+    async def on_disconnect(self, message):
             self.queue = []
+            self.repeat = False
             await leave(self)
             self.voice_channel = None
+            return await message.channel.send('Bot got disconnected from Discord!')
 
 
     async def on_message(self, message):
@@ -132,7 +137,7 @@ class MusicBot(discord.Client):
             self.queue = await clear(self.queue, message)
 
         if command == 'queue':
-            await queue(self.queue, message)
+            await queue(self.queue, message, self.repeat)
 
         if command == 'pause':
             await pause(self.voice_channel, self.queue, message)
@@ -148,6 +153,10 @@ class MusicBot(discord.Client):
 
         if command == 'replay':
             await replay(self, self.voice_channel, self.queue, message)
+
+        if command == 'repeat':
+            self.repeat = await repeat(self.queue, message, self.repeat)
+
 
 music_bot = MusicBot()
 music_bot.run(os.getenv('API_KEY'))

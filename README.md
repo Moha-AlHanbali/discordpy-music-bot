@@ -8,7 +8,7 @@
 - [x] Add the ability to pause/resume
 - [x] Add the ability to stop/skip
 - [x] Add the ability to Replay
-- [ ] Add the ability to Repeat
+- [x] Add the ability to Repeat
 - [x] Add Queue command
 - [x] Detect player state accurately and respond accordingly
 - [ ] Handle Errors (Somewhat)

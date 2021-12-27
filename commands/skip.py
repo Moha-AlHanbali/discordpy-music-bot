@@ -23,5 +23,5 @@ async def skip(bot, voice_channel, queue, message):
 
     if len(queue) > 1:
         queue.pop(0)
-        queue =  await play(bot, queue, voice_channel, message)
+        await play(bot, queue, voice_channel, message)
         

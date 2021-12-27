@@ -46,7 +46,7 @@ async def enqueue(queue, url, message):
         }
 
     queue.append(song)
-    print(queue)
+
     await message.channel.send(f'Added {song["title"]} to queue!')
 
     return queue
