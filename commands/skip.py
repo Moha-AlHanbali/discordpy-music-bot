@@ -15,13 +15,18 @@ async def skip(bot, voice_channel, queue, message):
         Return:
             Sends a status message
     """
-    if not queue:
-        return await message.channel.send('Queue is empty!')
 
-    voice_channel.stop()
-    await message.channel.send(f'Skipped {queue[0]["title"]}!')
+    try:
+        if not queue:
+            return await message.channel.send('Queue is empty!')
 
-    if len(queue) > 1:
-        queue.pop(0)
-        await play(bot, queue, voice_channel, message)
+        voice_channel.stop()
+        await message.channel.send(f'Skipped {queue[0]["title"]}!')
+
+        if len(queue) > 1:
+            queue.pop(0)
+            await play(bot, queue, voice_channel, message)
         
+    except Exception as error:
+        await message.channel.send('An error occurred..')
+        await message.channel.send(f'Error: {error}')

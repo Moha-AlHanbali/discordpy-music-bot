@@ -16,15 +16,19 @@ async def play_next(bot, queue, voice_channel, message):
         Return:
             Sends a status message
     """
+    try:
+        repeat = bot.repeat
 
-    repeat = bot.repeat
+        if not repeat:
+            queue.pop(0)
 
-    if not repeat:
-        queue.pop(0)
+        if queue:
+            voice_channel.play(discord.FFmpegPCMAudio(queue[0]['url'], before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5') , after = lambda e: asyncio.run_coroutine_threadsafe(play_next(bot, queue, voice_channel, message), bot.loop))
+            return  await message.channel.send(f'Started Playing {queue[0]["title"]}!')
 
-    if queue:
-        voice_channel.play(discord.FFmpegPCMAudio(queue[0]['url'], before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5') , after = lambda e: asyncio.run_coroutine_threadsafe(play_next(bot, queue, voice_channel, message), bot.loop))
-        return  await message.channel.send(f'Started Playing {queue[0]["title"]}!')
+        return await message.channel.send(f'Queue ended!')
 
-    return await message.channel.send(f'Queue ended!')
+    except Exception as error:
+        await message.channel.send('An error occurred..')
+        await message.channel.send(f'Error: {error}')
 

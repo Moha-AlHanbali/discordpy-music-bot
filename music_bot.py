@@ -20,6 +20,7 @@ from commands.repeat import repeat
 load_dotenv()
 prefix = '!'
 
+
 class MusicBot(discord.Client):
     """
     MusicBot Class inherits Discord Client Class, which is the connection to discord. Each class instance is a bot that is able to play music on its' own.
@@ -91,71 +92,81 @@ class MusicBot(discord.Client):
 
 
     async def on_message(self, message):
+        try:
+            if message.author == self.user or  not message.content.startswith(prefix):
+                return
 
-        if message.author == self.user or  not message.content.startswith(prefix):
-            return
-
-        if not message.author.voice:
-            return await message.channel.send('You need to be in a voice channel to use bot commands!')
+            if not message.author.voice:
+                return await message.channel.send('You need to be in a voice channel to use bot commands!')
 
 
-        command = message.content.lower().split(" ")[0][1:]
-        content = " ".join(message.content.split(" ")[1:])      # NOTE: HASHED URLS MAY CONTAIN UPPER CASE LETTERS
+            command = message.content.lower().split(" ")[0][1:]
+            content = " ".join(message.content.split(" ")[1:])      # NOTE: HASHED URLS MAY CONTAIN UPPER CASE LETTERS
 
-        if not self.voice_clients and not command == 'leave' and not command == 'join':
-            await summon(message.author)
-            self.voice_channel = self.voice_clients[0]
+            if not self.voice_clients and not command == 'leave' and not command == 'join':
+                await summon(message.author)
+                self.voice_channel = self.voice_clients[0]
 
-        await self.command_handler(message, command, content)
+            await self.command_handler(message, command, content)
+
+        except Exception as error:
+            await message.channel.send('An error occurred..')
+            await message.channel.send(f'Error: {error}')
 
 
 
     async def command_handler(self, message, command, content=''):
 
-        if command == 'add':
-            self.queue = await enqueue(self.queue, content, message)
+        try:
+            if command == 'add':
+                self.queue = await enqueue(self.queue, content, message)
 
-        if command == 'play':
-            await self.change_presence(status=discord.Status.idle, activity=discord.Game('playing music'))
-            self.queue = await enqueue(self.queue, content, message)
-            if not self.voice_channel.is_playing():
-                self.queue = await play(self, self.queue, self.voice_channel, message)
+            if command == 'play':
+                await self.change_presence(status=discord.Status.idle, activity=discord.Game('playing music'))
+                self.queue = await enqueue(self.queue, content, message)
+                if not self.voice_channel.is_playing():
+                    self.queue = await play(self, self.queue, self.voice_channel, message)
 
-        if command == 'join':
-            if not self.voice_clients:
-                return await summon(message.author)
-            await message.channel.send('Bot is already joined a vocie channel!', delete_after=5)
+            if command == 'join':
+                if not self.voice_clients:
+                    return await summon(message)
+                await message.channel.send('Bot is already joined a vocie channel!', delete_after=5)
 
-        if command == 'leave':
-            if self.voice_clients:
-                self.queue = clear(self.queue, message)
-                self.voice_channel = None
-                return await leave(self)
-            await message.channel.send('Bot is not in a vocie channel!')
+            if command == 'leave':
+                if self.voice_clients:
+                    self.queue = clear(self.queue, message)
+                    self.voice_channel = None
+                    return await leave(self, message)
+                await message.channel.send('Bot is not in a vocie channel!')
 
-        if command == 'clear':
-            self.queue = await clear(self.queue, message)
+            if command == 'clear':
+                self.queue = await clear(self.queue, message)
 
-        if command == 'queue':
-            await queue(self.queue, message, self.repeat)
+            if command == 'queue':
+                await queue(self.queue, message, self.repeat)
 
-        if command == 'pause':
-            await pause(self.voice_channel, self.queue, message)
+            if command == 'pause':
+                await pause(self.voice_channel, self.queue, message)
 
-        if command == 'resume':
-            await resume(self.voice_channel, self.queue, message)
+            if command == 'resume':
+                await resume(self.voice_channel, self.queue, message)
 
-        if command == 'stop':
-            self.queue = await stop(self.voice_channel, self.queue, message)
+            if command == 'stop':
+                self.queue = await stop(self.voice_channel, self.queue, message)
 
-        if command == 'skip':
-            await skip(self, self.voice_channel, self.queue, message)
+            if command == 'skip':
+                await skip(self, self.voice_channel, self.queue, message)
 
-        if command == 'replay':
-            await replay(self, self.voice_channel, self.queue, message)
+            if command == 'replay':
+                await replay(self, self.voice_channel, self.queue, message)
 
-        if command == 'repeat':
-            self.repeat = await repeat(self.queue, message, self.repeat)
+            if command == 'repeat':
+                self.repeat = await repeat(self.queue, message, self.repeat)
+
+
+        except Exception as error:
+            await message.channel.send('An error occurred..')
+            await message.channel.send(f'Error: {error}')
 
 
 music_bot = MusicBot()

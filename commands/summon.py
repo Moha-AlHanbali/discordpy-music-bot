@@ -1,6 +1,6 @@
 """This module allows bot to join a voice channel"""
 
-async def summon(user):
+async def summon(message):
     """
     summon joins bot to user's voice channel.
 
@@ -10,4 +10,9 @@ async def summon(user):
         Return: 
             Connects bot to VC 
     """
-    return await user.voice.channel.connect()
+    try:
+        return await message.author.voice.channel.connect()
+
+    except Exception as error:
+        await message.channel.send('An error occurred..')
+        await message.channel.send(f'Error: {error}')

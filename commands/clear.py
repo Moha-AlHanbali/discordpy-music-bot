@@ -11,10 +11,15 @@ async def clear(queue, message):
             Modified queue
             
     """
-    if not queue:
-        await message.channel.send('Queue is already empty!')
-    else:
-        queue = []
-        await message.channel.send('Cleared queue!')
-    return queue
+    try:
+        if not queue:
+            await message.channel.send('Queue is already empty!')
+        else:
+            queue = []
+            await message.channel.send('Cleared queue!')
+        return queue
+    
+    except Exception as error:
+        await message.channel.send('An error occurred..')
+        await message.channel.send(f'Error: {error}')
     
