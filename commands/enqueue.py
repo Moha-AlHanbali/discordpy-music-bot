@@ -31,22 +31,27 @@ async def enqueue(queue, url, message):
 
     """
 
+    try:
+        if url:
+            song_info =  ytdl.extract_info(url, download = False)
+            if 'formats' in song_info:
+                song = {
+                    'title': song_info['title'],
+                    'url': song_info['url']
+                }
 
-    song_info =  ytdl.extract_info(url, download = False)
-    if 'formats' in song_info:
-        song = {
-            'title': song_info['title'],
-            'url': song_info['url']
-        }
+            if 'entries' in song_info:
+                song = {
+                    'title': song_info['entries'][0]['title'],
+                    'url': song_info['entries'][0]["formats"][0]['url']
+                }
 
-    if 'entries' in song_info:
-        song = {
-            'title': song_info['entries'][0]['title'],
-            'url': song_info['entries'][0]["formats"][0]['url']
-        }
+            queue.append(song)
 
-    queue.append(song)
+            await message.channel.send(f'Added {song["title"]} to queue!')
 
-    await message.channel.send(f'Added {song["title"]} to queue!')
+        return queue
 
-    return queue
+    except Exception as error:
+        await message.channel.send('An error occurred..')
+        await message.channel.send(f'Error: {error}')

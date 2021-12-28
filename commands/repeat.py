@@ -13,15 +13,19 @@ async def repeat(queue, message, repeat):
         Return:
             repeat: boolean
     """
+    try:
+        if not queue:
+            return await message.channel.send('Queue is empty!')
+        
+        if not repeat:
+            repeat = True
+            await message.channel.send(f'Turned ON repeat for {queue[0]["title"]}!')
+        else:
+            repeat = False
+            await message.channel.send(f'Turned OFF repeat for {queue[0]["title"]}!')
 
-    if not queue:
-        return await message.channel.send('Queue is empty!')
-    
-    if not repeat:
-        repeat = True
-        await message.channel.send(f'Turned ON repeat for {queue[0]["title"]}!')
-    else:
-        repeat = False
-        await message.channel.send(f'Turned OFF repeat for {queue[0]["title"]}!')
+        return repeat
 
-    return repeat
+    except Exception as error:
+        await message.channel.send('An error occurred..')
+        await message.channel.send(f'Error: {error}')

@@ -15,16 +15,18 @@ async def stop(voice_channel, queue, message):
         Return:
             Modified queue
     """
+    try:
+        if not queue:
+            await message.channel.send('Queue is empty!')
+            return queue
 
-    if not queue:
-        await message.channel.send('Queue is empty!')
+        queue = []
+        voice_channel.stop()
+        await message.channel.send('Player stopped playing and cleared queue!')
+
         return queue
 
-    queue = []
-    voice_channel.stop()
-    await message.channel.send('Player stopped playing and cleared queue!')
-
-    return queue
-
-
+    except Exception as error:
+        await message.channel.send('An error occurred..')
+        await message.channel.send(f'Error: {error}')
     

@@ -11,6 +11,6 @@
 - [x] Add the ability to Repeat
 - [x] Add Queue command
 - [x] Detect player state accurately and respond accordingly
-- [ ] Handle Errors (Somewhat)
-- [ ] Volume Control
+- [x] Handle Errors (Somewhat)
+- [x] Volume Control
 - [ ] Inactivity Timeout
