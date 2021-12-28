@@ -16,6 +16,7 @@ from commands.stop import stop
 from commands.skip import skip
 from commands.replay import replay
 from commands.repeat import repeat
+from commands.volume import volume
 
 load_dotenv()
 prefix = '!'
@@ -86,6 +87,8 @@ class MusicBot(discord.Client):
     async def on_disconnect(self, message):
             self.queue = []
             self.repeat = False
+            self.voice_channel.source = discord.PCMVolumeTransformer(self.voice_channel.source)
+            self.voice_channel.source.volume = 100/ self.voice_channel.source.volume**2            
             await leave(self)
             self.voice_channel = None
             return await message.channel.send('Bot got disconnected from Discord!')
@@ -104,7 +107,7 @@ class MusicBot(discord.Client):
             content = " ".join(message.content.split(" ")[1:])      # NOTE: HASHED URLS MAY CONTAIN UPPER CASE LETTERS
 
             if not self.voice_clients and not command == 'leave' and not command == 'join':
-                await summon(message.author)
+                await summon(message)
                 self.voice_channel = self.voice_clients[0]
 
             await self.command_handler(message, command, content)
@@ -134,7 +137,7 @@ class MusicBot(discord.Client):
 
             if command == 'leave':
                 if self.voice_clients:
-                    self.queue = clear(self.queue, message)
+                    self.queue = []
                     self.voice_channel = None
                     return await leave(self, message)
                 await message.channel.send('Bot is not in a vocie channel!')
@@ -163,6 +166,11 @@ class MusicBot(discord.Client):
             if command == 'repeat':
                 self.repeat = await repeat(self.queue, message, self.repeat)
 
+            if command == 'volume':
+                await volume(self.voice_channel, content, message)
+
+            if command == 'help':
+                await message.channel.send('Available commands: [Join, Leave, Add, Play, Pause, Resume, Replay, Repeat, Stop, Skip, Queue, Clear, Volume, and Help]')
 
         except Exception as error:
             await message.channel.send('An error occurred..')

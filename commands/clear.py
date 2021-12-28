@@ -15,7 +15,7 @@ async def clear(queue, message):
         if not queue:
             await message.channel.send('Queue is already empty!')
         else:
-            queue = []
+            queue = queue[:1]
             await message.channel.send('Cleared queue!')
         return queue
     
