@@ -2,6 +2,7 @@
 
 import discord
 import os
+import asyncio
 from dotenv import load_dotenv
 
 from commands.enqueue import enqueue
@@ -102,19 +103,31 @@ class MusicBot(discord.Client):
             if not message.author.voice:
                 return await message.channel.send('You need to be in a voice channel to use bot commands!')
 
+            if not self.voice_clients and self.user in message.author.voice.channel.members:    # NOTE: DISCONNECT VC NOT RECOGNIZED
+                await message.author.voice.channel.connect()
+                await self.voice_clients[0].disconnect()
+                return await message.channel.send('Bot encountered an error, please try using the command again!')
+
+
 
             command = message.content.lower().split(" ")[0][1:]
             content = " ".join(message.content.split(" ")[1:])      # NOTE: HASHED URLS MAY CONTAIN UPPER CASE LETTERS
 
+
             if not self.voice_clients and not command == 'leave' and not command == 'join':
                 await summon(message)
                 self.voice_channel = self.voice_clients[0]
+ 
 
-            await self.command_handler(message, command, content)
+
+                
+            return await self.command_handler(message, command, content)
+
 
         except Exception as error:
             await message.channel.send('An error occurred..')
             await message.channel.send(f'Error: {error}')
+            await self.on_disconnect(message)
 
 
 
@@ -133,7 +146,7 @@ class MusicBot(discord.Client):
             if command == 'join':
                 if not self.voice_clients:
                     return await summon(message)
-                await message.channel.send('Bot is already joined a vocie channel!', delete_after=5)
+                return await message.channel.send('Bot is already joined a vocie channel!', delete_after=5)
 
             if command == 'leave':
                 if self.voice_clients:
@@ -175,7 +188,7 @@ class MusicBot(discord.Client):
         except Exception as error:
             await message.channel.send('An error occurred..')
             await message.channel.send(f'Error: {error}')
-
+            await self.on_disconnect(message)
 
 music_bot = MusicBot()
 music_bot.run(os.getenv('API_KEY'))
