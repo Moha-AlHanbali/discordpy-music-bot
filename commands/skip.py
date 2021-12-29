@@ -25,7 +25,11 @@ async def skip(bot, voice_channel, queue, message):
 
         if len(queue) > 1:
             queue.pop(0)
+        if len(queue):
             await play(bot, queue, voice_channel, message)
+
+
+
         
     except Exception as error:
         await message.channel.send('An error occurred..')
