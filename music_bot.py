@@ -117,7 +117,7 @@ class MusicBot(discord.Client):
             if not self.voice_clients and not command == 'leave' and not command == 'join':
                 await summon(message)
                 self.voice_channel = self.voice_clients[0]
- 
+                self.voice_channel.stop()
 
 
                 
@@ -138,7 +138,7 @@ class MusicBot(discord.Client):
                 self.queue = await enqueue(self.queue, content, message)
 
             if command == 'play':
-                await self.change_presence(status=discord.Status.idle, activity=discord.Game('playing music'))
+                await self.change_presence(status=discord.Status.online, activity=discord.Game('playing music'))
                 self.queue = await enqueue(self.queue, content, message)
                 if not self.voice_channel.is_playing():
                     self.queue = await play(self, self.queue, self.voice_channel, message)
