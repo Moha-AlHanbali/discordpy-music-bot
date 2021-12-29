@@ -1,5 +1,6 @@
 """This module enqueues a song into tracks queue"""
 
+from os import replace
 import youtube_dl
 
 ytdl_opts = {
@@ -32,7 +33,7 @@ async def enqueue(queue, url, message):
     """
 
     try:
-        if url:
+        if not url.replace(' ', '') == '':
             song_info =  ytdl.extract_info(url, download = False)
             if 'formats' in song_info:
                 song = {
