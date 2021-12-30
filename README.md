@@ -1,5 +1,23 @@
 # discordpy-music-bot
 
+## Getting Started
+
+- Clone this repo on your machine
+
+- Use `$ poetry install` command to download all necessary packages
+
+- Create a Bot on [Discord Developer Portal](https://discord.com/developers/applications) (be sure to grant the bot the permission to join VC, speak, and send messages!)
+
+- Add your Discord bot token to `.env` file as shown in `.env.sample`
+
+- You may need to install [ffmpeg](https://ffmpeg.org/download.html) on your machine as well
+
+- Use `$ poetry shell` command to start the virtual environemmnt
+
+- Use `$ python music_bot.py` command to start the program
+
+- Music Bot is online awaiting your commands on Discord!
+
 ## Functionality
 
 - [x] Get it running
